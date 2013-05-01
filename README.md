@@ -1,13 +1,13 @@
 # ecc
 A native elliptic curve cryptographic module for node.js
 
-# Installation
+## Installation
 TODO
 
-# Usage
+## Usage
 For usage details see the examples in the examples folder.
 
-# License
+## License
 The MIT License (MIT)
 
 Copyright (c) 2013 Dave Akers
