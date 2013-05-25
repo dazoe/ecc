@@ -134,28 +134,30 @@ Handle<Value> ECKey::GetHasPrivateKey(Local<String> property, const AccessorInfo
 }
 Handle<Value> ECKey::GetPublicKey(Local<String> property, const AccessorInfo &info) {
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
-	int pub_size = i2o_ECPublicKey(eckey->mKey, NULL);
-	if (!pub_size) {
-		return V8Exception("i2o_ECPublicKey error");
+	const EC_GROUP *group = EC_KEY_get0_group(eckey->mKey);
+	const EC_POINT *point = EC_KEY_get0_public_key(eckey->mKey);
+	unsigned int nReq = EC_POINT_point2oct(group, point, POINT_CONVERSION_COMPRESSED, NULL, 0, NULL);
+	if (!nReq) {
+		return V8Exception("EC_POINT_point2oct error");
 	}
-	unsigned char *pub_buf, *pub_buf2;
-	pub_buf = pub_buf2 = (unsigned char *)malloc(pub_size);
-	if (i2o_ECPublicKey(eckey->mKey, &pub_buf) != pub_size) {
-		return V8Exception("i2o_ECPublicKey didn't return pub_size");
+	unsigned char *buf, *buf2;
+	buf = buf2 = (unsigned char *)malloc(nReq);
+	if (EC_POINT_point2oct(group, point, POINT_CONVERSION_COMPRESSED, buf, nReq, NULL) != nReq) {
+		return V8Exception("EC_POINT_point2oct didn't return correct size");
 	}
 	HandleScope scope;
-	Buffer *buffer = Buffer::New(pub_size);
-	memcpy(Buffer::Data(buffer), pub_buf2, pub_size);
-	free(pub_buf2);
+	Buffer *buffer = Buffer::New(nReq);
+	memcpy(Buffer::Data(buffer), buf2, nReq);
+	free(buf2);
 	return scope.Close(buffer->handle_);
 }
 Handle<Value> ECKey::GetPrivateKey(Local<String> property, const AccessorInfo &info) {
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
 	const BIGNUM *bn = EC_KEY_get0_private_key(eckey->mKey);
-	int priv_size = BN_num_bytes(bn);
 	if (bn == NULL) {
 		return V8Exception("EC_KEY_get0_private_key failed");
 	}
+	int priv_size = BN_num_bytes(bn);
 	unsigned char *priv_buf = (unsigned char *)malloc(priv_size);
 	int n = BN_bn2bin(bn, priv_buf);
 	if (n != priv_size) {
