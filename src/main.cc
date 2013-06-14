@@ -14,9 +14,11 @@ void InitCurves(Handle<Object> exports) {
 	obj->Set(String::NewSymbol("secp160k1"), Number::New(NID_secp160k1));
 	obj->Set(String::NewSymbol("secp160r1"), Number::New(NID_secp160r1));
 	obj->Set(String::NewSymbol("secp160r2"), Number::New(NID_secp160r2));
+	obj->Set(String::NewSymbol("secp192r1"), Number::New(NID_X9_62_prime192v1));
 	obj->Set(String::NewSymbol("secp192k1"), Number::New(NID_secp192k1));
 	obj->Set(String::NewSymbol("secp224k1"), Number::New(NID_secp224k1));
 	obj->Set(String::NewSymbol("secp224r1"), Number::New(NID_secp224r1));
+	obj->Set(String::NewSymbol("secp256r1"), Number::New(NID_X9_62_prime256v1));
 	obj->Set(String::NewSymbol("secp256k1"), Number::New(NID_secp256k1));
 	obj->Set(String::NewSymbol("secp384r1"), Number::New(NID_secp384r1));
 	obj->Set(String::NewSymbol("secp521r1"), Number::New(NID_secp521r1));
@@ -38,6 +40,15 @@ void InitCurves(Handle<Object> exports) {
 	obj->Set(String::NewSymbol("sect409r1"), Number::New(NID_sect409r1));
 	obj->Set(String::NewSymbol("sect571k1"), Number::New(NID_sect571k1));
 	obj->Set(String::NewSymbol("sect571r1"), Number::New(NID_sect571r1));
+
+	// Intimidated? Can't go wrong with NIST recommended curves
+
+	obj->Set(String::NewSymbol("nistp192"), Number::New(NID_X9_62_prime192v1));
+	obj->Set(String::NewSymbol("nistp224"), Number::New(NID_secp224r1));
+	obj->Set(String::NewSymbol("nistp256"), Number::New(NID_X9_62_prime256v1));
+	obj->Set(String::NewSymbol("nistp384"), Number::New(NID_secp384r1));
+	obj->Set(String::NewSymbol("nistp521"), Number::New(NID_secp521r1));
+
 	exports->Set(String::NewSymbol("ECCurves"), obj);
 }
 
