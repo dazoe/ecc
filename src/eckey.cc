@@ -80,12 +80,13 @@ void ECKey::Init(Handle<Object> exports) {
 }
 
 // Node constructor function
+// new ECKey(curve, buffer, isPrivate)
 Handle<Value> ECKey::New(const Arguments &args) {
 	if (!args.IsConstructCall()) {
 		return V8Exception("Must use new keyword");
 	}
 	if (args[0]->IsUndefined()) {
-		return V8Exception("Curve required?");
+		return V8Exception("First argument must be an ECCurve");
 	}
 	HandleScope scope;
 	ECKey *eckey = new ECKey(args[0]->NumberValue());
@@ -117,8 +118,8 @@ Handle<Value> ECKey::New(const Arguments &args) {
 		}
 		eckey->mHasPrivateKey = true;
 	}
-	eckey->Wrap(args.This());
-	return scope.Close(args.This());
+	eckey->Wrap(args.Holder());
+	return args.Holder();
 }
 
 // Node properity functions
@@ -173,7 +174,7 @@ Handle<Value> ECKey::GetPrivateKey(Local<String> property, const AccessorInfo &i
 // Node method functions
 Handle<Value> ECKey::Sign(const Arguments &args) {
 	HandleScope scope;
-	ECKey * eckey = ObjectWrap::Unwrap<ECKey>(args.This());
+	ECKey * eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	if (!Buffer::HasInstance(args[0])) {
 		return V8Exception("digest must be a buffer");
 	}
@@ -207,7 +208,7 @@ Handle<Value> ECKey::Sign(const Arguments &args) {
 }
 Handle<Value> ECKey::VerifySignature(const Arguments &args) {
 	HandleScope scope;
-	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.This());
+	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	if (!Buffer::HasInstance(args[0])) {
 		return V8Exception("digest must be a buffer");
 	}
@@ -236,7 +237,7 @@ Handle<Value> ECKey::DeriveSharedSecret(const Arguments &args) {
 	if (args[0]->IsUndefined()) {
 		return V8Exception("other is required");
 	}
-	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.This());
+	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	ECKey *other = ObjectWrap::Unwrap<ECKey>(args[0]->ToObject());
 	if (!other) {
 		return V8Exception("other must be an ECKey");
