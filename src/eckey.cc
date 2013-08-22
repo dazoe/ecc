@@ -43,7 +43,6 @@ err:
 }
 
 ECKey::ECKey(int curve) {
-	mLastError = NULL;
 	mHasPrivateKey = false;
 	mCurve = curve;
 	mKey = EC_KEY_new_by_curve_name(mCurve);
@@ -65,7 +64,7 @@ void ECKey::Init(Handle<Object> exports) {
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
 	//Accessors
-	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("LastError"), GetLastError);
+	// tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("LastError"), GetLastError);
 	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("HasPrivateKey"), GetHasPrivateKey);
 	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("PublicKey"), GetPublicKey);
 	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("PrivateKey"), GetPrivateKey);
@@ -123,11 +122,6 @@ Handle<Value> ECKey::New(const Arguments &args) {
 }
 
 // Node properity functions
-Handle<Value> ECKey::GetLastError(Local<String> property, const AccessorInfo &info) {
-	HandleScope scope;
-	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
-	return scope.Close(String::New(eckey->mLastError));
-}
 Handle<Value> ECKey::GetHasPrivateKey(Local<String> property, const AccessorInfo &info) {
 	HandleScope scope;
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
