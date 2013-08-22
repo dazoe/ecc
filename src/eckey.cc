@@ -78,7 +78,7 @@ void ECKey::Init(Handle<Object> exports) {
 }
 
 // Node constructor function
-// new ECKey(curve, buffer, isPrivate)
+// new ECKey(curve, buffer, isPublic)
 Handle<Value> ECKey::New(const Arguments &args) {
 	if (!args.IsConstructCall()) {
 		return V8Exception("Must use new keyword");
@@ -89,10 +89,10 @@ Handle<Value> ECKey::New(const Arguments &args) {
 	HandleScope scope;
 	ECKey *eckey = new ECKey(args[0]->NumberValue());
 	if (!args[1]->IsUndefined()) {
-		//we have a second parameter, check the third to see if it is public or private.
 		if (!Buffer::HasInstance(args[1])) {
 			return V8Exception("Second parameter must be a buffer");
 		}
+		//we have a second parameter, check the third to see if it is public or private.
 		Handle<Object> buffer = args[1]->ToObject();
 		const unsigned char *bufferData = (unsigned char *) Buffer::Data(buffer);
 		if ((args[2]->IsUndefined()) || (args[2]->BooleanValue() == false)) {
