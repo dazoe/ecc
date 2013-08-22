@@ -64,7 +64,6 @@ void ECKey::Init(Handle<Object> exports) {
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
 	//Accessors
-	// tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("LastError"), GetLastError);
 	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("HasPrivateKey"), GetHasPrivateKey);
 	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("PublicKey"), GetPublicKey);
 	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("PrivateKey"), GetPrivateKey);
