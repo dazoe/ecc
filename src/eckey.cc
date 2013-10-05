@@ -107,7 +107,7 @@ Handle<Value> ECKey::New(const Arguments &args) {
 		} else {
 			// it's a public key
 			if (!o2i_ECPublicKey(&(eckey->mKey), &bufferData, Buffer::Length(buffer))) {
-				return V8Exception("o2i_ECPublicKey failed");
+				return V8Exception("o2i_ECPublicKey failed, Invalid public key");
 			}
 		}
 	} else {
