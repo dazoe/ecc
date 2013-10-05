@@ -6,7 +6,6 @@
   "scripts": {
     "install": "node-gyp rebuild"
   },
-  "repository": "",
   "author": "Dave Akers <dave@dazoe.net>",
   "keywords": [
     "ecc",
