@@ -14,7 +14,6 @@ class ECKey : public ObjectWrap {
 		ECKey(int curve);
 		~ECKey();
 
-		const char *mLastError;
 		int mCurve;
 		EC_KEY *mKey;
 		bool mHasPrivateKey;

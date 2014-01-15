@@ -43,7 +43,6 @@ err:
 }
 
 ECKey::ECKey(int curve) {
-	mLastError = NULL;
 	mHasPrivateKey = false;
 	mCurve = curve;
 	mKey = EC_KEY_new_by_curve_name(mCurve);
@@ -65,7 +64,6 @@ void ECKey::Init(Handle<Object> exports) {
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
 	//Accessors
-	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("LastError"), GetLastError);
 	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("HasPrivateKey"), GetHasPrivateKey);
 	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("PublicKey"), GetPublicKey);
 	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("PrivateKey"), GetPrivateKey);
@@ -80,20 +78,21 @@ void ECKey::Init(Handle<Object> exports) {
 }
 
 // Node constructor function
+// new ECKey(curve, buffer, isPublic)
 Handle<Value> ECKey::New(const Arguments &args) {
 	if (!args.IsConstructCall()) {
 		return V8Exception("Must use new keyword");
 	}
 	if (args[0]->IsUndefined()) {
-		return V8Exception("Curve required?");
+		return V8Exception("First argument must be an ECCurve");
 	}
 	HandleScope scope;
 	ECKey *eckey = new ECKey(args[0]->NumberValue());
 	if (!args[1]->IsUndefined()) {
-		//we have a second parameter, check the third to see if it is public or private.
 		if (!Buffer::HasInstance(args[1])) {
 			return V8Exception("Second parameter must be a buffer");
 		}
+		//we have a second parameter, check the third to see if it is public or private.
 		Handle<Object> buffer = args[1]->ToObject();
 		const unsigned char *bufferData = (unsigned char *) Buffer::Data(buffer);
 		if ((args[2]->IsUndefined()) || (args[2]->BooleanValue() == false)) {
@@ -108,7 +107,7 @@ Handle<Value> ECKey::New(const Arguments &args) {
 		} else {
 			// it's a public key
 			if (!o2i_ECPublicKey(&(eckey->mKey), &bufferData, Buffer::Length(buffer))) {
-				return V8Exception("o2i_ECPublicKey failed");
+				return V8Exception("o2i_ECPublicKey failed, Invalid public key");
 			}
 		}
 	} else {
@@ -117,16 +116,11 @@ Handle<Value> ECKey::New(const Arguments &args) {
 		}
 		eckey->mHasPrivateKey = true;
 	}
-	eckey->Wrap(args.This());
-	return scope.Close(args.This());
+	eckey->Wrap(args.Holder());
+	return args.Holder();
 }
 
 // Node properity functions
-Handle<Value> ECKey::GetLastError(Local<String> property, const AccessorInfo &info) {
-	HandleScope scope;
-	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
-	return scope.Close(String::New(eckey->mLastError));
-}
 Handle<Value> ECKey::GetHasPrivateKey(Local<String> property, const AccessorInfo &info) {
 	HandleScope scope;
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
@@ -173,7 +167,7 @@ Handle<Value> ECKey::GetPrivateKey(Local<String> property, const AccessorInfo &i
 // Node method functions
 Handle<Value> ECKey::Sign(const Arguments &args) {
 	HandleScope scope;
-	ECKey * eckey = ObjectWrap::Unwrap<ECKey>(args.This());
+	ECKey * eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	if (!Buffer::HasInstance(args[0])) {
 		return V8Exception("digest must be a buffer");
 	}
@@ -207,7 +201,7 @@ Handle<Value> ECKey::Sign(const Arguments &args) {
 }
 Handle<Value> ECKey::VerifySignature(const Arguments &args) {
 	HandleScope scope;
-	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.This());
+	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	if (!Buffer::HasInstance(args[0])) {
 		return V8Exception("digest must be a buffer");
 	}
@@ -236,7 +230,7 @@ Handle<Value> ECKey::DeriveSharedSecret(const Arguments &args) {
 	if (args[0]->IsUndefined()) {
 		return V8Exception("other is required");
 	}
-	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.This());
+	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	ECKey *other = ObjectWrap::Unwrap<ECKey>(args[0]->ToObject());
 	if (!other) {
 		return V8Exception("other must be an ECKey");
