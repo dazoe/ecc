@@ -2,7 +2,7 @@
 A native elliptic curve cryptographic module for node.js
 
 ## Installation
-TODO
+npm install https://github.com/dazoe/ecc/tarball/master
 
 ## Usage
 For usage details see the examples in the examples folder.
