@@ -116,6 +116,10 @@ NAN_METHOD(ECKey::New) {
 	NanReturnHolder();
 }
 
+static void FreeBufferData(char *data, void *hint) {
+	free(data);
+}
+
 // Node properity functions
 NAN_GETTER(ECKey::GetHasPrivateKey) {
 	NanScope();
@@ -136,10 +140,7 @@ NAN_GETTER(ECKey::GetPublicKey) {
 		return NanThrowError("EC_POINT_point2oct didn't return correct size");
 	}
 	NanScope();
-	Buffer *buffer = Buffer::New(nReq);
-	memcpy(Buffer::Data(buffer), buf2, nReq);
-	free(buf2);
-	NanReturnValue(buffer->handle_);
+	NanReturnValue(NanNewBufferHandle((char *)buf2, nReq, FreeBufferData, NULL));
 }
 NAN_GETTER(ECKey::GetPrivateKey) {
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
@@ -154,10 +155,7 @@ NAN_GETTER(ECKey::GetPrivateKey) {
 		return NanThrowError("BN_bn2bin didn't return priv_size");
 	}
 	NanScope();
-	Buffer *buffer = Buffer::New(priv_size);
-	memcpy(Buffer::Data(buffer), priv_buf, priv_size);
-	free(priv_buf);
-	NanReturnValue(buffer->handle_);
+	NanReturnValue(NanNewBufferHandle((char *)priv_buf, priv_size, FreeBufferData, NULL));
 }
 
 // Node method functions
@@ -190,10 +188,7 @@ NAN_METHOD(ECKey::Sign) {
 		return NanThrowError("i2d_ECDSA_SIG didnot return correct length");
 	}
 	ECDSA_SIG_free(sig);
-	Buffer *result = Buffer::New(sig_len);
-	memcpy(Buffer::Data(result), sig_data2, sig_len);
-	free(sig_data2);
-	NanReturnValue(result->handle_);
+	NanReturnValue(NanNewBufferHandle((char *)sig_data2, sig_len, FreeBufferData, NULL));
 }
 NAN_METHOD(ECKey::VerifySignature) {
 	NanScope();
@@ -233,8 +228,5 @@ NAN_METHOD(ECKey::DeriveSharedSecret) {
 	}
 	unsigned char *secret = (unsigned char*)malloc(512);
 	int len = ECDH_compute_key(secret, 512, EC_KEY_get0_public_key(other->mKey), eckey->mKey, NULL);
-	Buffer *result = Buffer::New(len);
-	memcpy(Buffer::Data(result), secret, len);
-	free(secret);
-	NanReturnValue(result->handle_);
+	NanReturnValue(NanNewBufferHandle((char *)secret, len, FreeBufferData, NULL));
 }
