@@ -1,5 +1,6 @@
 #include <string.h>
 #include <node.h>
+#include <nan.h>
 #include <node_buffer.h>
 #include <openssl/bn.h>
 #include <openssl/ec.h>
@@ -242,4 +243,3 @@ Handle<Value> ECKey::DeriveSharedSecret(const Arguments &args) {
 	free(secret);
 	return scope.Close(result->handle_);
 }
-

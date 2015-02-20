@@ -1,4 +1,5 @@
 #include <node.h>
+#include <nan.h>
 #include <openssl/obj_mac.h>
 
 #include "eckey.h"
