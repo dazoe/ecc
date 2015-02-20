@@ -80,7 +80,7 @@ void ECKey::Init(Handle<Object> exports) {
 
 // Node constructor function
 // new ECKey(curve, buffer, isPublic)
-Handle<Value> ECKey::New(const Arguments &args) {
+NAN_METHOD(ECKey::New) {
 	if (!args.IsConstructCall()) {
 		return V8Exception("Must use new keyword");
 	}
@@ -166,7 +166,7 @@ Handle<Value> ECKey::GetPrivateKey(Local<String> property, const AccessorInfo &i
 }
 
 // Node method functions
-Handle<Value> ECKey::Sign(const Arguments &args) {
+NAN_METHOD(ECKey::Sign) {
 	HandleScope scope;
 	ECKey * eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	if (!Buffer::HasInstance(args[0])) {
@@ -200,7 +200,7 @@ Handle<Value> ECKey::Sign(const Arguments &args) {
 	free(sig_data2);
 	return scope.Close(result->handle_);
 }
-Handle<Value> ECKey::VerifySignature(const Arguments &args) {
+NAN_METHOD(ECKey::VerifySignature) {
 	HandleScope scope;
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	if (!Buffer::HasInstance(args[0])) {
@@ -226,7 +226,7 @@ Handle<Value> ECKey::VerifySignature(const Arguments &args) {
 		return V8Exception("ECDSA_verify gave an unexpected return value");
 	}
 }
-Handle<Value> ECKey::DeriveSharedSecret(const Arguments &args) {
+NAN_METHOD(ECKey::DeriveSharedSecret) {
 	HandleScope scope;
 	if (args[0]->IsUndefined()) {
 		return V8Exception("other is required");
