@@ -13,11 +13,6 @@ using namespace v8;
 using namespace node;
 
 
-static Handle<Value> V8Exception(const char* msg) {
-	HandleScope scope;
-	return ThrowException(Exception::Error(String::New(msg)));
-}
-
 // Not sure where this came from. but looks like a function that should be part of openssl
 int static inline EC_KEY_regenerate_key(EC_KEY *eckey, const BIGNUM *priv_key) {
 	if (!eckey) return 0;
@@ -48,7 +43,7 @@ ECKey::ECKey(int curve) {
 	mCurve = curve;
 	mKey = EC_KEY_new_by_curve_name(mCurve);
 	if (!mKey) {
-		V8Exception("EC_KEY_new_by_curve_name Invalid curve?");
+		NanThrowError("EC_KEY_new_by_curve_name Invalid curve?");
 		return;
 	}
 }
@@ -82,16 +77,16 @@ void ECKey::Init(Handle<Object> exports) {
 // new ECKey(curve, buffer, isPublic)
 NAN_METHOD(ECKey::New) {
 	if (!args.IsConstructCall()) {
-		return V8Exception("Must use new keyword");
+		return NanThrowError("Must use new keyword");
 	}
 	if (args[0]->IsUndefined()) {
-		return V8Exception("First argument must be an ECCurve");
+		return NanThrowError("First argument must be an ECCurve");
 	}
 	HandleScope scope;
 	ECKey *eckey = new ECKey(args[0]->NumberValue());
 	if (!args[1]->IsUndefined()) {
 		if (!Buffer::HasInstance(args[1])) {
-			return V8Exception("Second parameter must be a buffer");
+			return NanThrowError("Second parameter must be a buffer");
 		}
 		//we have a second parameter, check the third to see if it is public or private.
 		Handle<Object> buffer = args[1]->ToObject();
@@ -101,19 +96,19 @@ NAN_METHOD(ECKey::New) {
 			BIGNUM *bn = BN_bin2bn(bufferData, Buffer::Length(buffer), BN_new());
 			if (EC_KEY_regenerate_key(eckey->mKey, bn) == 0) {
 				BN_clear_free(bn);
-				return V8Exception("Invalid private key");
+				return NanThrowError("Invalid private key");
 			}
 			BN_clear_free(bn);
 			eckey->mHasPrivateKey = true;
 		} else {
 			// it's a public key
 			if (!o2i_ECPublicKey(&(eckey->mKey), &bufferData, Buffer::Length(buffer))) {
-				return V8Exception("o2i_ECPublicKey failed, Invalid public key");
+				return NanThrowError("o2i_ECPublicKey failed, Invalid public key");
 			}
 		}
 	} else {
 		if (!EC_KEY_generate_key(eckey->mKey)) {
-			return V8Exception("EC_KEY_generate_key failed");
+			return NanThrowError("EC_KEY_generate_key failed");
 		}
 		eckey->mHasPrivateKey = true;
 	}
@@ -133,12 +128,12 @@ NAN_GETTER(ECKey::GetPublicKey) {
 	const EC_POINT *point = EC_KEY_get0_public_key(eckey->mKey);
 	unsigned int nReq = EC_POINT_point2oct(group, point, POINT_CONVERSION_COMPRESSED, NULL, 0, NULL);
 	if (!nReq) {
-		return V8Exception("EC_POINT_point2oct error");
+		return NanThrowError("EC_POINT_point2oct error");
 	}
 	unsigned char *buf, *buf2;
 	buf = buf2 = (unsigned char *)malloc(nReq);
 	if (EC_POINT_point2oct(group, point, POINT_CONVERSION_COMPRESSED, buf, nReq, NULL) != nReq) {
-		return V8Exception("EC_POINT_point2oct didn't return correct size");
+		return NanThrowError("EC_POINT_point2oct didn't return correct size");
 	}
 	HandleScope scope;
 	Buffer *buffer = Buffer::New(nReq);
@@ -150,13 +145,13 @@ NAN_GETTER(ECKey::GetPrivateKey) {
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
 	const BIGNUM *bn = EC_KEY_get0_private_key(eckey->mKey);
 	if (bn == NULL) {
-		return V8Exception("EC_KEY_get0_private_key failed");
+		return NanThrowError("EC_KEY_get0_private_key failed");
 	}
 	int priv_size = BN_num_bytes(bn);
 	unsigned char *priv_buf = (unsigned char *)malloc(priv_size);
 	int n = BN_bn2bin(bn, priv_buf);
 	if (n != priv_size) {
-		return V8Exception("BN_bn2bin didn't return priv_size");
+		return NanThrowError("BN_bn2bin didn't return priv_size");
 	}
 	HandleScope scope;
 	Buffer *buffer = Buffer::New(priv_size);
@@ -170,10 +165,10 @@ NAN_METHOD(ECKey::Sign) {
 	HandleScope scope;
 	ECKey * eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	if (!Buffer::HasInstance(args[0])) {
-		return V8Exception("digest must be a buffer");
+		return NanThrowError("digest must be a buffer");
 	}
 	if (!eckey->mHasPrivateKey) {
-		return V8Exception("cannot sign without private key");
+		return NanThrowError("cannot sign without private key");
 	}
 	Handle<Object> digest = args[0]->ToObject();
 	const unsigned char *digest_data = (unsigned char *)Buffer::Data(digest);
@@ -181,18 +176,18 @@ NAN_METHOD(ECKey::Sign) {
 
 	ECDSA_SIG *sig = ECDSA_do_sign(digest_data, digest_len, eckey->mKey);
 	if (!sig) {
-		return V8Exception("ECDSA_do_sign");
+		return NanThrowError("ECDSA_do_sign");
 	}
 	int sig_len = i2d_ECDSA_SIG(sig, NULL);
 	if (!sig_len) {
-		return V8Exception("i2d_ECDSA_SIG");
+		return NanThrowError("i2d_ECDSA_SIG");
 	}
 	unsigned char *sig_data, *sig_data2;
 	sig_data = sig_data2 = (unsigned char *)malloc(sig_len);
 	if (i2d_ECDSA_SIG(sig, &sig_data) != sig_len) {
 		ECDSA_SIG_free(sig);
 		free(sig_data2);
-		return V8Exception("i2d_ECDSA_SIG didnot return correct length");
+		return NanThrowError("i2d_ECDSA_SIG didnot return correct length");
 	}
 	ECDSA_SIG_free(sig);
 	Buffer *result = Buffer::New(sig_len);
@@ -204,10 +199,10 @@ NAN_METHOD(ECKey::VerifySignature) {
 	HandleScope scope;
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	if (!Buffer::HasInstance(args[0])) {
-		return V8Exception("digest must be a buffer");
+		return NanThrowError("digest must be a buffer");
 	}
 	if (!Buffer::HasInstance(args[1])) {
-		return V8Exception("signature must be a buffer");
+		return NanThrowError("signature must be a buffer");
 	}
 	Handle<Object> digest = args[0]->ToObject();
 	Handle<Object> signature = args[1]->ToObject();
@@ -217,24 +212,24 @@ NAN_METHOD(ECKey::VerifySignature) {
 	unsigned int signature_len = Buffer::Length(signature);
 	int result = ECDSA_verify(0, digest_data, digest_len, signature_data, signature_len, eckey->mKey);
 	if (result == -1) {
-		return V8Exception("ECDSA_verify");
+		return NanThrowError("ECDSA_verify");
 	} else if (result == 0) {
 		return scope.Close(NanNew<Boolean>(false));
 	} else if (result == 1) {
 		return scope.Close(NanNew<Boolean>(true));
 	} else {
-		return V8Exception("ECDSA_verify gave an unexpected return value");
+		return NanThrowError("ECDSA_verify gave an unexpected return value");
 	}
 }
 NAN_METHOD(ECKey::DeriveSharedSecret) {
 	HandleScope scope;
 	if (args[0]->IsUndefined()) {
-		return V8Exception("other is required");
+		return NanThrowError("other is required");
 	}
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	ECKey *other = ObjectWrap::Unwrap<ECKey>(args[0]->ToObject());
 	if (!other) {
-		return V8Exception("other must be an ECKey");
+		return NanThrowError("other must be an ECKey");
 	}
 	unsigned char *secret = (unsigned char*)malloc(512);
 	int len = ECDH_compute_key(secret, 512, EC_KEY_get0_public_key(other->mKey), eckey->mKey, NULL);
