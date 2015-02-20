@@ -82,7 +82,7 @@ NAN_METHOD(ECKey::New) {
 	if (args[0]->IsUndefined()) {
 		return NanThrowError("First argument must be an ECCurve");
 	}
-	HandleScope scope;
+	NanScope();
 	ECKey *eckey = new ECKey(args[0]->NumberValue());
 	if (!args[1]->IsUndefined()) {
 		if (!Buffer::HasInstance(args[1])) {
@@ -113,14 +113,14 @@ NAN_METHOD(ECKey::New) {
 		eckey->mHasPrivateKey = true;
 	}
 	eckey->Wrap(args.Holder());
-	return args.Holder();
+	NanReturnHolder();
 }
 
 // Node properity functions
 NAN_GETTER(ECKey::GetHasPrivateKey) {
-	HandleScope scope;
+	NanScope();
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
-	return scope.Close(NanNew<Boolean>(eckey->mHasPrivateKey));
+	NanReturnValue(NanNew<Boolean>(eckey->mHasPrivateKey));
 }
 NAN_GETTER(ECKey::GetPublicKey) {
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
@@ -135,11 +135,11 @@ NAN_GETTER(ECKey::GetPublicKey) {
 	if (EC_POINT_point2oct(group, point, POINT_CONVERSION_COMPRESSED, buf, nReq, NULL) != nReq) {
 		return NanThrowError("EC_POINT_point2oct didn't return correct size");
 	}
-	HandleScope scope;
+	NanScope();
 	Buffer *buffer = Buffer::New(nReq);
 	memcpy(Buffer::Data(buffer), buf2, nReq);
 	free(buf2);
-	return scope.Close(buffer->handle_);
+	NanReturnValue(buffer->handle_);
 }
 NAN_GETTER(ECKey::GetPrivateKey) {
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
@@ -153,16 +153,16 @@ NAN_GETTER(ECKey::GetPrivateKey) {
 	if (n != priv_size) {
 		return NanThrowError("BN_bn2bin didn't return priv_size");
 	}
-	HandleScope scope;
+	NanScope();
 	Buffer *buffer = Buffer::New(priv_size);
 	memcpy(Buffer::Data(buffer), priv_buf, priv_size);
 	free(priv_buf);
-	return scope.Close(buffer->handle_);
+	NanReturnValue(buffer->handle_);
 }
 
 // Node method functions
 NAN_METHOD(ECKey::Sign) {
-	HandleScope scope;
+	NanScope();
 	ECKey * eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	if (!Buffer::HasInstance(args[0])) {
 		return NanThrowError("digest must be a buffer");
@@ -193,10 +193,10 @@ NAN_METHOD(ECKey::Sign) {
 	Buffer *result = Buffer::New(sig_len);
 	memcpy(Buffer::Data(result), sig_data2, sig_len);
 	free(sig_data2);
-	return scope.Close(result->handle_);
+	NanReturnValue(result->handle_);
 }
 NAN_METHOD(ECKey::VerifySignature) {
-	HandleScope scope;
+	NanScope();
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	if (!Buffer::HasInstance(args[0])) {
 		return NanThrowError("digest must be a buffer");
@@ -214,15 +214,15 @@ NAN_METHOD(ECKey::VerifySignature) {
 	if (result == -1) {
 		return NanThrowError("ECDSA_verify");
 	} else if (result == 0) {
-		return scope.Close(NanNew<Boolean>(false));
+		NanReturnValue(NanNew<Boolean>(false));
 	} else if (result == 1) {
-		return scope.Close(NanNew<Boolean>(true));
+		NanReturnValue(NanNew<Boolean>(true));
 	} else {
 		return NanThrowError("ECDSA_verify gave an unexpected return value");
 	}
 }
 NAN_METHOD(ECKey::DeriveSharedSecret) {
-	HandleScope scope;
+	NanScope();
 	if (args[0]->IsUndefined()) {
 		return NanThrowError("other is required");
 	}
@@ -236,5 +236,5 @@ NAN_METHOD(ECKey::DeriveSharedSecret) {
 	Buffer *result = Buffer::New(len);
 	memcpy(Buffer::Data(result), secret, len);
 	free(secret);
-	return scope.Close(result->handle_);
+	NanReturnValue(result->handle_);
 }
