@@ -67,9 +67,9 @@ void ECKey::Init(Handle<Object> exports) {
 	tpl->InstanceTemplate()->SetAccessor(NanNew<String>("PrivateKey"), GetPrivateKey);
 
 	//Methods (Prototype)
-	tpl->PrototypeTemplate()->Set(NanNew<String>("sign"), NanNew<FunctionTemplate>(Sign)->GetFunction());
-	tpl->PrototypeTemplate()->Set(NanNew<String>("verifySignature"), NanNew<FunctionTemplate>(VerifySignature)->GetFunction());
-	tpl->PrototypeTemplate()->Set(NanNew<String>("deriveSharedSecret"), NanNew<FunctionTemplate>(DeriveSharedSecret)->GetFunction());
+	NODE_SET_PROTOTYPE_METHOD(tpl, "sign", Sign);
+	NODE_SET_PROTOTYPE_METHOD(tpl, "verifySignature", VerifySignature);
+	NODE_SET_PROTOTYPE_METHOD(tpl, "deriveSharedSecret", DeriveSharedSecret);
 
 	NanAssignPersistent(constructor_template, tpl);
 	exports->Set(NanNew<String>("ECKey"), tpl->GetFunction());
