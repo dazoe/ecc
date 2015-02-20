@@ -53,6 +53,8 @@ ECKey::~ECKey() {
 	}
 }
 
+static Persistent<FunctionTemplate> constructor_template;
+
 // Node module init
 void ECKey::Init(Handle<Object> exports) {
 	Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>(New);
@@ -69,8 +71,8 @@ void ECKey::Init(Handle<Object> exports) {
 	tpl->PrototypeTemplate()->Set(NanNew<String>("verifySignature"), NanNew<FunctionTemplate>(VerifySignature)->GetFunction());
 	tpl->PrototypeTemplate()->Set(NanNew<String>("deriveSharedSecret"), NanNew<FunctionTemplate>(DeriveSharedSecret)->GetFunction());
 
-	Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
-	exports->Set(NanNew<String>("ECKey"), constructor);
+	NanAssignPersistent(constructor_template, tpl);
+	exports->Set(NanNew<String>("ECKey"), tpl->GetFunction());
 }
 
 // Node constructor function
