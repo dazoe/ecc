@@ -61,21 +61,21 @@ ECKey::~ECKey() {
 // Node module init
 void ECKey::Init(Handle<Object> exports) {
 	Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-	tpl->SetClassName(String::NewSymbol("ECKey"));
+	tpl->SetClassName(NanNew<String>("ECKey"));
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
 	//Accessors
-	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("HasPrivateKey"), GetHasPrivateKey);
-	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("PublicKey"), GetPublicKey);
-	tpl->InstanceTemplate()->SetAccessor(String::NewSymbol("PrivateKey"), GetPrivateKey);
+	tpl->InstanceTemplate()->SetAccessor(NanNew<String>("HasPrivateKey"), GetHasPrivateKey);
+	tpl->InstanceTemplate()->SetAccessor(NanNew<String>("PublicKey"), GetPublicKey);
+	tpl->InstanceTemplate()->SetAccessor(NanNew<String>("PrivateKey"), GetPrivateKey);
 
 	//Methods (Prototype)
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("sign"), FunctionTemplate::New(Sign)->GetFunction());
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("verifySignature"), FunctionTemplate::New(VerifySignature)->GetFunction());
-	tpl->PrototypeTemplate()->Set(String::NewSymbol("deriveSharedSecret"), FunctionTemplate::New(DeriveSharedSecret)->GetFunction());
+	tpl->PrototypeTemplate()->Set(NanNew<String>("sign"), FunctionTemplate::New(Sign)->GetFunction());
+	tpl->PrototypeTemplate()->Set(NanNew<String>("verifySignature"), FunctionTemplate::New(VerifySignature)->GetFunction());
+	tpl->PrototypeTemplate()->Set(NanNew<String>("deriveSharedSecret"), FunctionTemplate::New(DeriveSharedSecret)->GetFunction());
 
 	Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
-	exports->Set(String::NewSymbol("ECKey"), constructor);
+	exports->Set(NanNew<String>("ECKey"), constructor);
 }
 
 // Node constructor function
