@@ -119,11 +119,11 @@ NAN_METHOD(ECKey::New) {
 // Node properity functions
 NAN_GETTER(ECKey::GetHasPrivateKey) {
 	NanScope();
-	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
+	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	NanReturnValue(NanNew<Boolean>(eckey->mHasPrivateKey));
 }
 NAN_GETTER(ECKey::GetPublicKey) {
-	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
+	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	const EC_GROUP *group = EC_KEY_get0_group(eckey->mKey);
 	const EC_POINT *point = EC_KEY_get0_public_key(eckey->mKey);
 	unsigned int nReq = EC_POINT_point2oct(group, point, POINT_CONVERSION_COMPRESSED, NULL, 0, NULL);
@@ -142,7 +142,7 @@ NAN_GETTER(ECKey::GetPublicKey) {
 	NanReturnValue(buffer->handle_);
 }
 NAN_GETTER(ECKey::GetPrivateKey) {
-	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
+	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	const BIGNUM *bn = EC_KEY_get0_private_key(eckey->mKey);
 	if (bn == NULL) {
 		return NanThrowError("EC_KEY_get0_private_key failed");
