@@ -125,7 +125,7 @@ Handle<Value> ECKey::New(const Arguments &args) {
 Handle<Value> ECKey::GetHasPrivateKey(Local<String> property, const AccessorInfo &info) {
 	HandleScope scope;
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
-	return scope.Close(Boolean::New(eckey->mHasPrivateKey));
+	return scope.Close(NanNew<Boolean>(eckey->mHasPrivateKey));
 }
 Handle<Value> ECKey::GetPublicKey(Local<String> property, const AccessorInfo &info) {
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
@@ -219,9 +219,9 @@ Handle<Value> ECKey::VerifySignature(const Arguments &args) {
 	if (result == -1) {
 		return V8Exception("ECDSA_verify");
 	} else if (result == 0) {
-		return scope.Close(Boolean::New(false));
+		return scope.Close(NanNew<Boolean>(false));
 	} else if (result == 1) {
-		return scope.Close(Boolean::New(true));
+		return scope.Close(NanNew<Boolean>(true));
 	} else {
 		return V8Exception("ECDSA_verify gave an unexpected return value");
 	}
