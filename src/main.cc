@@ -7,7 +7,7 @@
 using namespace v8;
 
 void InitCurves(Handle<Object> exports) {
-	Local<Object> obj = Object::New();
+	Local<Object> obj = NanNew<Object>();
 	obj->Set(NanNew<String>("secp112r1"), NanNew<Number>(NID_secp112r1));
 	obj->Set(NanNew<String>("secp112r2"), NanNew<Number>(NID_secp112r2));
 	obj->Set(NanNew<String>("secp128r1"), NanNew<Number>(NID_secp128r1));
