@@ -22,10 +22,10 @@ class ECKey : public ObjectWrap {
 		static NAN_METHOD(New);
 
 		// Node properties
-		static Handle<Value> GetLastError(Local<String> property, const AccessorInfo &info);
-		static Handle<Value> GetHasPrivateKey(Local<String> property, const AccessorInfo &info);
-		static Handle<Value> GetPublicKey(Local<String> property, const AccessorInfo &info);
-		static Handle<Value> GetPrivateKey(Local<String> property, const AccessorInfo &info);
+		static NAN_GETTER(GetLastError);
+		static NAN_GETTER(GetHasPrivateKey);
+		static NAN_GETTER(GetPublicKey);
+		static NAN_GETTER(GetPrivateKey);
 
 		// Node methods
 		static NAN_METHOD(Sign); // sign(digest)

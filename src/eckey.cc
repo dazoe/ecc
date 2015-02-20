@@ -122,12 +122,12 @@ NAN_METHOD(ECKey::New) {
 }
 
 // Node properity functions
-Handle<Value> ECKey::GetHasPrivateKey(Local<String> property, const AccessorInfo &info) {
+NAN_GETTER(ECKey::GetHasPrivateKey) {
 	HandleScope scope;
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
 	return scope.Close(NanNew<Boolean>(eckey->mHasPrivateKey));
 }
-Handle<Value> ECKey::GetPublicKey(Local<String> property, const AccessorInfo &info) {
+NAN_GETTER(ECKey::GetPublicKey) {
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
 	const EC_GROUP *group = EC_KEY_get0_group(eckey->mKey);
 	const EC_POINT *point = EC_KEY_get0_public_key(eckey->mKey);
@@ -146,7 +146,7 @@ Handle<Value> ECKey::GetPublicKey(Local<String> property, const AccessorInfo &in
 	free(buf2);
 	return scope.Close(buffer->handle_);
 }
-Handle<Value> ECKey::GetPrivateKey(Local<String> property, const AccessorInfo &info) {
+NAN_GETTER(ECKey::GetPrivateKey) {
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(info.Holder());
 	const BIGNUM *bn = EC_KEY_get0_private_key(eckey->mKey);
 	if (bn == NULL) {
