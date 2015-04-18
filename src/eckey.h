@@ -19,18 +19,18 @@ class ECKey : public ObjectWrap {
 		bool mHasPrivateKey;
 
 		// Node constructor
-		static Handle<Value> New(const Arguments &args);
+		static NAN_METHOD(New);
 
 		// Node properties
-		static Handle<Value> GetLastError(Local<String> property, const AccessorInfo &info);
-		static Handle<Value> GetHasPrivateKey(Local<String> property, const AccessorInfo &info);
-		static Handle<Value> GetPublicKey(Local<String> property, const AccessorInfo &info);
-		static Handle<Value> GetPrivateKey(Local<String> property, const AccessorInfo &info);
+		static NAN_GETTER(GetLastError);
+		static NAN_GETTER(GetHasPrivateKey);
+		static NAN_GETTER(GetPublicKey);
+		static NAN_GETTER(GetPrivateKey);
 
 		// Node methods
-		static Handle<Value> Sign(const Arguments &args); // sign(digest)
-		static Handle<Value> VerifySignature(const Arguments &args); // verifySignature(digest, signature)
-		static Handle<Value> DeriveSharedSecret(const Arguments &args); // deriveSharedSecret(ECKey other)
+		static NAN_METHOD(Sign); // sign(digest)
+		static NAN_METHOD(VerifySignature); // verifySignature(digest, signature)
+		static NAN_METHOD(DeriveSharedSecret); // deriveSharedSecret(ECKey other)
 };
 
 

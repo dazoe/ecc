@@ -19,5 +19,8 @@
   "repository" : {
     "type" : "git",
     "url" : "https://github.com/dazoe/ecc.git"
+  },
+  "dependencies": {
+    "nan": "^1.6.2"
   }
 }
