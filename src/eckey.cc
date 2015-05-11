@@ -132,13 +132,13 @@ NAN_GETTER(ECKey::GetPublicKey) {
 	ECKey *eckey = ObjectWrap::Unwrap<ECKey>(args.Holder());
 	const EC_GROUP *group = EC_KEY_get0_group(eckey->mKey);
 	const EC_POINT *point = EC_KEY_get0_public_key(eckey->mKey);
-	unsigned int nReq = EC_POINT_point2oct(group, point, POINT_CONVERSION_COMPRESSED, NULL, 0, NULL);
+	unsigned int nReq = EC_POINT_point2oct(group, point, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, NULL);
 	if (!nReq) {
 		return NanThrowError("EC_POINT_point2oct error");
 	}
 	unsigned char *buf, *buf2;
 	buf = buf2 = (unsigned char *)malloc(nReq);
-	if (EC_POINT_point2oct(group, point, POINT_CONVERSION_COMPRESSED, buf, nReq, NULL) != nReq) {
+	if (EC_POINT_point2oct(group, point, POINT_CONVERSION_UNCOMPRESSED, buf, nReq, NULL) != nReq) {
 		return NanThrowError("EC_POINT_point2oct didn't return correct size");
 	}
 	NanScope();
